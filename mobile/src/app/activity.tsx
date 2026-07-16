@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function ActivityScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
-      <Text>Net worth, dashboard, and summaries will live here.</Text>
+      <Text style={styles.title}>Activity</Text>
+      <Text>The combined transaction feed will live here.</Text>
     </View>
   );
 }
