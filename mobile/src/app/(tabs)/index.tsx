@@ -1,12 +1,15 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 
+import { NetWorthChart } from '@/components/net-worth-chart';
 import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
 import { mockAccounts } from '@/data/mock-accounts';
+import { mockNetWorthHistory } from '@/data/mock-net-worth-history';
 import { mockTransactions } from '@/data/mock-transactions';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { detectRecurringTransactionIds } from '@/utils/recurring';
 import {
   calculateNetWorth,
   calculateTotalAssets,
@@ -26,6 +29,7 @@ export default function HomeScreen() {
   const netWorth = calculateNetWorth(mockAccounts);
   const totalAssets = calculateTotalAssets(mockAccounts);
   const totalLiabilities = calculateTotalLiabilities(mockAccounts);
+  const recurringIds = detectRecurringTransactionIds(mockTransactions);
   const recentTransactions = [...mockTransactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -42,12 +46,21 @@ export default function HomeScreen() {
         Net worth
       </ThemedText>
 
+      <View style={styles.chartWrapper}>
+        <NetWorthChart history={mockNetWorthHistory} />
+      </View>
+
       <View style={styles.statsRow}>
         <View style={[styles.statCard, { backgroundColor: theme.backgroundElement }]}>
           <ThemedText type="small" themeColor="textSecondary">
             Total assets
           </ThemedText>
-          <ThemedText type="subtitle" themeColor="success" style={styles.statValue}>
+          <ThemedText
+            type="smallBold"
+            themeColor="success"
+            style={styles.statValue}
+            numberOfLines={1}
+            adjustsFontSizeToFit>
             {formatCurrency(totalAssets)}
           </ThemedText>
         </View>
@@ -55,7 +68,12 @@ export default function HomeScreen() {
           <ThemedText type="small" themeColor="textSecondary">
             Total liabilities
           </ThemedText>
-          <ThemedText type="subtitle" themeColor="danger" style={styles.statValue}>
+          <ThemedText
+            type="smallBold"
+            themeColor="danger"
+            style={styles.statValue}
+            numberOfLines={1}
+            adjustsFontSizeToFit>
             {formatCurrency(totalLiabilities)}
           </ThemedText>
         </View>
@@ -69,7 +87,11 @@ export default function HomeScreen() {
         scrollEnabled={false}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <TransactionRow transaction={item} showBorder={index !== recentTransactions.length - 1} />
+          <TransactionRow
+            transaction={item}
+            showBorder={index !== recentTransactions.length - 1}
+            isRecurring={recurringIds.has(item.id)}
+          />
         )}
       />
     </ScreenContainer>
@@ -81,6 +103,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
   },
   netWorthLabel: {
+    marginBottom: Spacing.three,
+  },
+  chartWrapper: {
     marginBottom: Spacing.four,
   },
   statsRow: {
@@ -95,6 +120,8 @@ const styles = StyleSheet.create({
   },
   statValue: {
     marginTop: Spacing.one,
+    fontSize: 20,
+    lineHeight: 24,
   },
   sectionTitle: {
     marginBottom: Spacing.two,

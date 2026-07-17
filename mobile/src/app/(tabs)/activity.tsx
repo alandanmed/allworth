@@ -9,10 +9,13 @@ import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
 import { mockTransactions } from '@/data/mock-transactions';
 import { Spacing } from '@/constants/theme';
+import { detectRecurringTransactionIds } from '@/utils/recurring';
 
 export default function ActivityScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const recurringIds = useMemo(() => detectRecurringTransactionIds(mockTransactions), []);
 
   const allCategories = useMemo(
     () => Array.from(new Set(mockTransactions.map((t) => t.category))).sort(),
@@ -85,6 +88,7 @@ export default function ActivityScreen() {
             <TransactionRow
               transaction={item}
               showBorder={index !== filteredTransactions.length - 1}
+              isRecurring={recurringIds.has(item.id)}
             />
           )}
         />

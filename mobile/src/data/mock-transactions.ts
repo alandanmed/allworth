@@ -11,4 +11,8 @@ export const mockTransactions: Transaction[] = [
   { id: 'txn-8', accountId: 'acct-credit', merchant: 'Delta Air Lines', amount: 412.0, date: '2026-07-09', category: 'Travel', status: 'completed' },
   { id: 'txn-9', accountId: 'acct-checking', merchant: 'Georgia Power', amount: 89.44, date: '2026-07-08', category: 'Utilities', status: 'completed' },
   { id: 'txn-10', accountId: 'acct-checking', merchant: 'Refund - Best Buy', amount: -34.99, date: '2026-07-07', category: 'Shopping', status: 'completed' },
+  { id: 'txn-11', accountId: 'acct-credit', merchant: 'Netflix', amount: 15.49, date: '2026-06-14', category: 'Subscriptions', status: 'completed' },
+  { id: 'txn-12', accountId: 'acct-credit', merchant: 'Spotify', amount: 11.99, date: '2026-06-11', category: 'Subscriptions', status: 'completed' },
+  { id: 'txn-13', accountId: 'acct-credit', merchant: 'Netflix', amount: 15.49, date: '2026-05-14', category: 'Subscriptions', status: 'completed' },
+  { id: 'txn-14', accountId: 'acct-credit', merchant: 'Spotify', amount: 11.99, date: '2026-05-11', category: 'Subscriptions', status: 'completed' },
 ];
