@@ -15,4 +15,5 @@ export const mockTransactions: Transaction[] = [
   { id: 'txn-12', accountId: 'acct-credit', merchant: 'Spotify', amount: 11.99, date: '2026-06-11', category: 'Subscriptions', status: 'completed' },
   { id: 'txn-13', accountId: 'acct-credit', merchant: 'Netflix', amount: 15.49, date: '2026-05-14', category: 'Subscriptions', status: 'completed' },
   { id: 'txn-14', accountId: 'acct-credit', merchant: 'Spotify', amount: 11.99, date: '2026-05-11', category: 'Subscriptions', status: 'completed' },
+  { id: 'txn-15', accountId: 'acct-checking', merchant: 'Chipotle', amount: 13.75, date: '2026-07-11', category: 'Dining', status: 'completed' },
 ];
