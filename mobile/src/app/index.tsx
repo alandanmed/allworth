@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 
 import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
+import { TransactionRow } from '@/components/transaction-row';
 import { mockAccounts } from '@/data/mock-accounts';
 import { mockTransactions } from '@/data/mock-transactions';
 import { Radius, Spacing } from '@/constants/theme';
@@ -67,19 +68,8 @@ export default function HomeScreen() {
         data={recentTransactions}
         scrollEnabled={false}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={[styles.transactionRow, { borderBottomColor: theme.border }]}>
-            <View>
-              <ThemedText type="default">{item.merchant}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {item.category} · {item.date}
-              </ThemedText>
-            </View>
-            <ThemedText type="smallBold" themeColor={item.amount < 0 ? 'success' : 'text'}>
-              {item.amount < 0 ? '+' : '-'}
-              {formatCurrency(Math.abs(item.amount))}
-            </ThemedText>
-          </View>
+        renderItem={({ item, index }) => (
+          <TransactionRow transaction={item} showBorder={index !== recentTransactions.length - 1} />
         )}
       />
     </ScreenContainer>
@@ -108,12 +98,5 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: Spacing.two,
-  },
-  transactionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: Spacing.two,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
