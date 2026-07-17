@@ -10,12 +10,23 @@ type TransactionRowProps = {
   transaction: Transaction;
   showBorder?: boolean;
   isRecurring?: boolean;
+  isDuplicate?: boolean;
 };
 
-export function TransactionRow({ transaction, showBorder = true, isRecurring = false }: TransactionRowProps) {
+export function TransactionRow({
+  transaction,
+  showBorder = true,
+  isRecurring = false,
+  isDuplicate = false,
+}: TransactionRowProps) {
   const isIncome = transaction.amount < 0;
+
+  // Duplicate warning takes priority over recurring tag if somehow both apply —
+  // a possible accidental double-charge is more urgent to surface than "this is a subscription."
+  const tagText = isDuplicate ? 'Possible duplicate' : isRecurring ? 'Recurring' : '';
+
   const label = `${transaction.merchant}, ${transaction.category}, ${
-    isRecurring ? 'recurring, ' : ''
+    tagText ? tagText + ', ' : ''
   }${transaction.date}, ${isIncome ? 'received' : 'spent'} ${formatCurrency(Math.abs(transaction.amount))}`;
 
   return (
@@ -26,9 +37,12 @@ export function TransactionRow({ transaction, showBorder = true, isRecurring = f
       style={[styles.row, showBorder && styles.divider]}>
       <View style={styles.left}>
         <ThemedText type="default">{transaction.merchant}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText
+          type="small"
+          themeColor={isDuplicate ? 'warning' : 'textSecondary'}
+          style={isDuplicate ? styles.duplicateText : undefined}>
           {transaction.category}
-          {isRecurring ? ' · Recurring' : ''} · {transaction.date}
+          {tagText ? ` · ${tagText}` : ''} · {transaction.date}
           {transaction.status === 'pending' ? ' · Pending' : ''}
         </ThemedText>
       </View>
@@ -54,5 +68,8 @@ const styles = StyleSheet.create({
   left: {
     flex: 1,
     marginRight: Spacing.two,
+  },
+  duplicateText: {
+    fontWeight: '600',
   },
 });
