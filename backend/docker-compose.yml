@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: allworth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: allworth
+      POSTGRES_PASSWORD: allworth_dev_password
+      POSTGRES_DB: allworth
+    ports:
+      - "5432:5432"
+    volumes:
+      - allworth_pgdata:/var/lib/postgresql/data
+
+volumes:
+  allworth_pgdata:
