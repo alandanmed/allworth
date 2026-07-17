@@ -21,13 +21,10 @@ class Transaction(Base):
         UUID(as_uuid=True), ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
     )
     merchant: Mapped[str] = mapped_column(String(255), nullable=False)
-    # Positive = money out (spending). Negative = money in (income/refund).
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     date: Mapped[date_type] = mapped_column(Date, nullable=False, index=True)
-    # 'pending' | 'completed'
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="completed")
     notes: Mapped[str] = mapped_column(Text, nullable=True)
-    # Plaid's own transaction ID, once we integrate Sandbox — prevents duplicate imports
     plaid_transaction_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -35,3 +32,4 @@ class Transaction(Base):
     )
 
     account = relationship("Account", back_populates="transactions")
+    category = relationship("Category")
