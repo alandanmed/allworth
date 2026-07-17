@@ -9,6 +9,7 @@ import { mockNetWorthHistory } from '@/data/mock-net-worth-history';
 import { mockTransactions } from '@/data/mock-transactions';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
 import {
   calculateNetWorth,
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   const totalAssets = calculateTotalAssets(mockAccounts);
   const totalLiabilities = calculateTotalLiabilities(mockAccounts);
   const recurringIds = detectRecurringTransactionIds(mockTransactions);
+  const duplicateIds = detectDuplicateTransactionIds(mockTransactions);
   const recentTransactions = [...mockTransactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -91,6 +93,7 @@ export default function HomeScreen() {
             transaction={item}
             showBorder={index !== recentTransactions.length - 1}
             isRecurring={recurringIds.has(item.id)}
+            isDuplicate={duplicateIds.has(item.id)}
           />
         )}
       />
