@@ -15,7 +15,7 @@ export function ScreenContainer({ children, scroll = false, style }: ScreenConta
   const theme = useTheme();
   const Wrapper = scroll ? ScrollView : View;
   const wrapperProps = scroll
-    ? { contentContainerStyle: [styles.content, style] }
+    ? { contentContainerStyle: [styles.scrollContent, style] }
     : { style: [styles.content, style] };
 
   return (
@@ -33,5 +33,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
+    paddingBottom: Spacing.six,
   },
 });

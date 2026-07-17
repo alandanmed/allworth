@@ -100,8 +100,10 @@ const styles = StyleSheet.create({
   chipRow: {
     marginBottom: Spacing.four,
     marginTop: Spacing.one,
+    flexGrow: 0,
   },
   chipRowContent: {
+    alignItems: 'center',
     paddingRight: Spacing.three,
   },
 });
