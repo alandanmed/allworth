@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 import { Transaction } from '@/types/finance';
@@ -17,10 +18,11 @@ export function TransactionRow({ transaction, showBorder = true }: TransactionRo
   } ${formatCurrency(Math.abs(transaction.amount))}`;
 
   return (
-    <View
-      style={[styles.row, showBorder && styles.divider]}
-      accessible
-      accessibilityLabel={label}>
+    <Pressable
+      onPress={() => router.push(`/transaction/${transaction.id}`)}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={[styles.row, showBorder && styles.divider]}>
       <View style={styles.left}>
         <ThemedText type="default">{transaction.merchant}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
@@ -32,7 +34,7 @@ export function TransactionRow({ transaction, showBorder = true }: TransactionRo
         {isIncome ? '+' : '-'}
         {formatCurrency(Math.abs(transaction.amount))}
       </ThemedText>
-    </View>
+    </Pressable>
   );
 }
 
