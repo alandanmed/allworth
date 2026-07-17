@@ -9,13 +9,14 @@ import { ThemedText } from './themed-text';
 type TransactionRowProps = {
   transaction: Transaction;
   showBorder?: boolean;
+  isRecurring?: boolean;
 };
 
-export function TransactionRow({ transaction, showBorder = true }: TransactionRowProps) {
+export function TransactionRow({ transaction, showBorder = true, isRecurring = false }: TransactionRowProps) {
   const isIncome = transaction.amount < 0;
-  const label = `${transaction.merchant}, ${transaction.category}, ${transaction.date}, ${
-    isIncome ? 'received' : 'spent'
-  } ${formatCurrency(Math.abs(transaction.amount))}`;
+  const label = `${transaction.merchant}, ${transaction.category}, ${
+    isRecurring ? 'recurring, ' : ''
+  }${transaction.date}, ${isIncome ? 'received' : 'spent'} ${formatCurrency(Math.abs(transaction.amount))}`;
 
   return (
     <Pressable
@@ -26,7 +27,8 @@ export function TransactionRow({ transaction, showBorder = true }: TransactionRo
       <View style={styles.left}>
         <ThemedText type="default">{transaction.merchant}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          {transaction.category} · {transaction.date}
+          {transaction.category}
+          {isRecurring ? ' · Recurring' : ''} · {transaction.date}
           {transaction.status === 'pending' ? ' · Pending' : ''}
         </ThemedText>
       </View>
