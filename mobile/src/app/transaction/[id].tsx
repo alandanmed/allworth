@@ -2,11 +2,13 @@ import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { AppTextInput } from '@/components/app-text-input';
+import { ErrorState } from '@/components/error-state';
+import { LoadingState } from '@/components/loading-state';
 import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
-import { mockAccounts } from '@/data/mock-accounts';
-import { mockTransactions } from '@/data/mock-transactions';
 import { Spacing } from '@/constants/theme';
+import { useAccount } from '@/hooks/use-accounts';
+import { useTransaction } from '@/hooks/use-transactions';
 import { formatCurrency } from '@/utils/net-worth';
 
 function formatDate(isoDate: string): string {
@@ -30,17 +32,26 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function TransactionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const transaction = mockTransactions.find((t) => t.id === id);
+  const transactionQuery = useTransaction(id);
+  const accountQuery = useAccount(transactionQuery.data?.accountId);
 
-  if (!transaction) {
+  if (transactionQuery.isLoading) {
     return (
       <ScreenContainer>
-        <ThemedText type="default">Transaction not found.</ThemedText>
+        <LoadingState label="Loading transaction..." />
       </ScreenContainer>
     );
   }
 
-  const account = mockAccounts.find((a) => a.id === transaction.accountId);
+  if (transactionQuery.isError || !transactionQuery.data) {
+    return (
+      <ScreenContainer>
+        <ErrorState onRetry={transactionQuery.refetch} />
+      </ScreenContainer>
+    );
+  }
+
+  const transaction = transactionQuery.data;
   const isIncome = transaction.amount < 0;
 
   return (
@@ -57,7 +68,7 @@ export default function TransactionDetailScreen() {
 
       <View style={styles.detailsCard}>
         <DetailRow label="Category" value={transaction.category} />
-        <DetailRow label="Account" value={account?.name ?? 'Unknown'} />
+        <DetailRow label="Account" value={accountQuery.data?.name ?? 'Loading...'} />
         <DetailRow label="Date" value={formatDate(transaction.date)} />
         <DetailRow
           label="Status"
@@ -79,14 +90,8 @@ export default function TransactionDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  amountBlock: {
-    alignItems: 'center',
-    marginBottom: Spacing.four,
-    marginTop: Spacing.three,
-  },
-  detailsCard: {
-    marginBottom: Spacing.four,
-  },
+  amountBlock: { alignItems: 'center', marginBottom: Spacing.four, marginTop: Spacing.three },
+  detailsCard: { marginBottom: Spacing.four },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -94,11 +99,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#00000022',
   },
-  notesLabel: {
-    marginBottom: Spacing.one,
-  },
-  notesInput: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
+  notesLabel: { marginBottom: Spacing.one },
+  notesInput: { minHeight: 80, textAlignVertical: 'top' },
 });
