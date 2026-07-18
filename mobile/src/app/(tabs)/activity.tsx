@@ -3,25 +3,34 @@ import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppTextInput } from '@/components/app-text-input';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
+import { LoadingState } from '@/components/loading-state';
 import { ScreenContainer } from '@/components/screen-container';
 import { SuggestionChip } from '@/components/suggestion-chip';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
-import { mockTransactions } from '@/data/mock-transactions';
 import { Spacing } from '@/constants/theme';
+import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
 
 export default function ActivityScreen() {
+  const { data: transactions, isLoading, isError, refetch } = useTransactions();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const recurringIds = useMemo(() => detectRecurringTransactionIds(mockTransactions), []);
-  const duplicateIds = useMemo(() => detectDuplicateTransactionIds(mockTransactions), []);
+  const recurringIds = useMemo(
+    () => detectRecurringTransactionIds(transactions ?? []),
+    [transactions]
+  );
+  const duplicateIds = useMemo(
+    () => detectDuplicateTransactionIds(transactions ?? []),
+    [transactions]
+  );
 
   const allCategories = useMemo(
-    () => Array.from(new Set(mockTransactions.map((t) => t.category))).sort(),
-    []
+    () => Array.from(new Set((transactions ?? []).map((t) => t.category))).sort(),
+    [transactions]
   );
 
   function toggleCategory(category: string) {
@@ -33,7 +42,7 @@ export default function ActivityScreen() {
   }
 
   const filteredTransactions = useMemo(() => {
-    return [...mockTransactions]
+    return [...(transactions ?? [])]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .filter((txn) => {
         const matchesSearch = txn.merchant.toLowerCase().includes(searchQuery.toLowerCase());
@@ -41,7 +50,23 @@ export default function ActivityScreen() {
           selectedCategories.length === 0 || selectedCategories.includes(txn.category);
         return matchesSearch && matchesCategory;
       });
-  }, [searchQuery, selectedCategories]);
+  }, [transactions, searchQuery, selectedCategories]);
+
+  if (isLoading) {
+    return (
+      <ScreenContainer>
+        <LoadingState label="Loading transactions..." />
+      </ScreenContainer>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ScreenContainer>
+        <ErrorState onRetry={refetch} />
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer scroll>
@@ -101,16 +126,7 @@ export default function ActivityScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    marginBottom: Spacing.three,
-  },
-  chipRow: {
-    marginBottom: Spacing.four,
-    marginTop: Spacing.one,
-    flexGrow: 0,
-  },
-  chipRowContent: {
-    alignItems: 'center',
-    paddingRight: Spacing.three,
-  },
+  header: { marginBottom: Spacing.three },
+  chipRow: { marginBottom: Spacing.four, marginTop: Spacing.one, flexGrow: 0 },
+  chipRowContent: { alignItems: 'center', paddingRight: Spacing.three },
 });
