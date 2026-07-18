@@ -1,14 +1,16 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 
+import { ErrorState } from '@/components/error-state';
+import { LoadingState } from '@/components/loading-state';
 import { NetWorthChart } from '@/components/net-worth-chart';
 import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
-import { mockAccounts } from '@/data/mock-accounts';
 import { mockNetWorthHistory } from '@/data/mock-net-worth-history';
-import { mockTransactions } from '@/data/mock-transactions';
 import { Radius, Spacing } from '@/constants/theme';
+import { useAccounts } from '@/hooks/use-accounts';
 import { useTheme } from '@/hooks/use-theme';
+import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
 import {
@@ -27,12 +29,39 @@ function getGreeting(): string {
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const netWorth = calculateNetWorth(mockAccounts);
-  const totalAssets = calculateTotalAssets(mockAccounts);
-  const totalLiabilities = calculateTotalLiabilities(mockAccounts);
-  const recurringIds = detectRecurringTransactionIds(mockTransactions);
-  const duplicateIds = detectDuplicateTransactionIds(mockTransactions);
-  const recentTransactions = [...mockTransactions]
+  const accountsQuery = useAccounts();
+  const transactionsQuery = useTransactions();
+
+  if (accountsQuery.isLoading || transactionsQuery.isLoading) {
+    return (
+      <ScreenContainer>
+        <LoadingState label="Loading your dashboard..." />
+      </ScreenContainer>
+    );
+  }
+
+  if (accountsQuery.isError || transactionsQuery.isError) {
+    return (
+      <ScreenContainer>
+        <ErrorState
+          onRetry={() => {
+            accountsQuery.refetch();
+            transactionsQuery.refetch();
+          }}
+        />
+      </ScreenContainer>
+    );
+  }
+
+  const accounts = accountsQuery.data?.accounts ?? [];
+  const transactions = transactionsQuery.data ?? [];
+
+  const netWorth = calculateNetWorth(accounts);
+  const totalAssets = calculateTotalAssets(accounts);
+  const totalLiabilities = calculateTotalLiabilities(accounts);
+  const recurringIds = detectRecurringTransactionIds(transactions);
+  const duplicateIds = detectDuplicateTransactionIds(transactions);
+  const recentTransactions = [...transactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
 
@@ -102,31 +131,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  netWorthValue: {
-    marginTop: Spacing.two,
-  },
-  netWorthLabel: {
-    marginBottom: Spacing.three,
-  },
-  chartWrapper: {
-    marginBottom: Spacing.four,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    marginBottom: Spacing.four,
-  },
-  statCard: {
-    flex: 1,
-    borderRadius: Radius.medium,
-    padding: Spacing.three,
-  },
-  statValue: {
-    marginTop: Spacing.one,
-    fontSize: 20,
-    lineHeight: 24,
-  },
-  sectionTitle: {
-    marginBottom: Spacing.two,
-  },
+  netWorthValue: { marginTop: Spacing.two },
+  netWorthLabel: { marginBottom: Spacing.three },
+  chartWrapper: { marginBottom: Spacing.four },
+  statsRow: { flexDirection: 'row', gap: Spacing.two, marginBottom: Spacing.four },
+  statCard: { flex: 1, borderRadius: Radius.medium, padding: Spacing.three },
+  statValue: { marginTop: Spacing.one, fontSize: 20, lineHeight: 24 },
+  sectionTitle: { marginBottom: Spacing.two },
 });

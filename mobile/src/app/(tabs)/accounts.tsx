@@ -1,19 +1,39 @@
-import { ScreenContainer } from '@/components/screen-container';
-import { InstitutionCard } from '@/components/institution-card';
-import { ThemedText } from '@/components/themed-text';
-import { mockAccounts } from '@/data/mock-accounts';
-import { mockInstitutions } from '@/data/mock-institutions';
-import { Spacing } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
 
+import { ErrorState } from '@/components/error-state';
+import { InstitutionCard } from '@/components/institution-card';
+import { LoadingState } from '@/components/loading-state';
+import { ScreenContainer } from '@/components/screen-container';
+import { ThemedText } from '@/components/themed-text';
+import { Spacing } from '@/constants/theme';
+import { useAccounts } from '@/hooks/use-accounts';
+
 export default function AccountsScreen() {
+  const { data, isLoading, isError, refetch } = useAccounts();
+
+  if (isLoading) {
+    return (
+      <ScreenContainer>
+        <LoadingState label="Loading accounts..." />
+      </ScreenContainer>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <ScreenContainer>
+        <ErrorState onRetry={refetch} />
+      </ScreenContainer>
+    );
+  }
+
   return (
     <ScreenContainer scroll>
       <ThemedText type="title" style={styles.header}>
         Accounts
       </ThemedText>
-      {mockInstitutions.map((institution) => {
-        const accountsForInstitution = mockAccounts.filter(
+      {data.institutions.map((institution) => {
+        const accountsForInstitution = data.accounts.filter(
           (account) => account.institutionId === institution.id
         );
         if (accountsForInstitution.length === 0) return null;
@@ -31,7 +51,5 @@ export default function AccountsScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    marginBottom: Spacing.four,
-  },
+  header: { marginBottom: Spacing.four },
 });
