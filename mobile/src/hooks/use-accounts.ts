@@ -10,7 +10,7 @@ function mapAccount(api: ApiAccount): Account {
     institutionId: api.institution.id,
     name: api.name,
     type: api.type as Account['type'],
-    balance: api.balance,
+    balance: Number(api.balance),
     lastFourDigits: api.last_four_digits,
     syncStatus: api.sync_status as Account['syncStatus'],
   };
