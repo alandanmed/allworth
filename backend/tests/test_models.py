@@ -4,7 +4,7 @@ from app.models import Account, Category, Institution, Transaction, User
 
 
 def test_create_user_and_account(db_session):
-    user = User(email="test@example.com", hashed_password="fake_hash")
+    user = User(firebase_uid="test-firebase-uid-1", email="test@example.com")
     db_session.add(user)
     db_session.flush()
 
@@ -29,7 +29,7 @@ def test_create_user_and_account(db_session):
 
 
 def test_deleting_account_cascades_to_transactions(db_session):
-    user = User(email="test2@example.com", hashed_password="fake_hash")
+    user = User(firebase_uid="test-firebase-uid-2", email="test2@example.com")
     institution = Institution(name="Test Bank 2", logo_color="#000000")
     category = Category(name="Test Category")
     db_session.add_all([user, institution, category])
@@ -64,4 +64,4 @@ def test_deleting_account_cascades_to_transactions(db_session):
     db_session.commit()
 
     remaining = db_session.query(Transaction).filter(Transaction.id == transaction_id).first()
-    assert remaining is None  # cascade delete should have removed it
+    assert remaining is None

@@ -1,5 +1,5 @@
-// iOS Simulator shares the Mac's network, so 127.0.0.1 reaches the backend directly.
-// A physical device would need the Mac's LAN IP instead (e.g. 192.168.x.x) — not this URL.
+import { firebaseAuth } from '@/firebase/config';
+
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 export class ApiError extends Error {
@@ -8,6 +8,13 @@ export class ApiError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const currentUser = firebaseAuth.currentUser;
+  if (!currentUser) return {};
+  const token = await currentUser.getIdToken();
+  return { Authorization: `Bearer ${token}` };
 }
 
 export async function apiGet<T>(
@@ -21,7 +28,9 @@ export async function apiGet<T>(
     });
   }
 
-  const response = await fetch(url.toString());
+  const headers = await getAuthHeaders();
+  const response = await fetch(url.toString(), { headers });
+
   if (!response.ok) {
     throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
   }

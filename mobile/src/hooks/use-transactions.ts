@@ -9,7 +9,7 @@ function mapTransaction(api: ApiTransaction): Transaction {
     id: api.id,
     accountId: api.account_id,
     merchant: api.merchant,
-    amount: api.amount,
+    amount: Number(api.amount),
     date: api.date,
     category: api.category?.name ?? 'Uncategorized',
     status: api.status as Transaction['status'],

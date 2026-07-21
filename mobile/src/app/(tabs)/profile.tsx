@@ -1,15 +1,39 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { signOut } from 'firebase/auth';
+import { StyleSheet, View } from 'react-native';
+
+import { AppButton } from '@/components/app-button';
+import { ScreenContainer } from '@/components/screen-container';
+import { ThemedText } from '@/components/themed-text';
+import { Spacing } from '@/constants/theme';
+import { firebaseAuth } from '@/firebase/config';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ProfileScreen() {
+  const { user } = useAuth();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
-      <Text>Account settings and preferences will live here.</Text>
-    </View>
+    <ScreenContainer>
+      <ThemedText type="title" style={styles.header}>
+        Profile
+      </ThemedText>
+
+      <View style={styles.emailBlock}>
+        <ThemedText type="small" themeColor="textSecondary">
+          Signed in as
+        </ThemedText>
+        <ThemedText type="default">{user?.email}</ThemedText>
+      </View>
+
+      <AppButton label="Log Out" variant="destructive" onPress={() => signOut(firebaseAuth)} />
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
+  header: {
+    marginBottom: Spacing.four,
+  },
+  emailBlock: {
+    marginBottom: Spacing.five,
+  },
 });
