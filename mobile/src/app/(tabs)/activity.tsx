@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppTextInput } from '@/components/app-text-input';
+import { BudgetsLinkRow } from '@/components/budgets-link-row';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { InsightCard } from '@/components/insight-card';
@@ -88,6 +89,10 @@ export default function ActivityScreen() {
         </View>
       ) : null}
 
+      <View style={styles.budgetsWrapper}>
+        <BudgetsLinkRow />
+      </View>
+
       <AppTextInput
         placeholder="Search transactions"
         accessibilityLabel="Search transactions"
@@ -141,7 +146,8 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   header: { marginBottom: Spacing.three },
-  insightWrapper: { marginBottom: Spacing.four },
+  insightWrapper: { marginBottom: Spacing.two },
+  budgetsWrapper: { marginBottom: Spacing.four },
   chipRow: { marginBottom: Spacing.four, marginTop: Spacing.one, flexGrow: 0 },
   chipRowContent: { alignItems: 'center', paddingRight: Spacing.three },
 });
