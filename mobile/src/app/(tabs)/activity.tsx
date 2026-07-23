@@ -8,6 +8,7 @@ import { ErrorState } from '@/components/error-state';
 import { InsightCard } from '@/components/insight-card';
 import { LoadingState } from '@/components/loading-state';
 import { ScreenContainer } from '@/components/screen-container';
+import { SubscriptionsLinkRow } from '@/components/subscriptions-link-row';
 import { SuggestionChip } from '@/components/suggestion-chip';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
@@ -16,6 +17,7 @@ import { useSpendingSummary } from '@/hooks/use-spending-summary';
 import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
+import { calculateTotalMonthlySubscriptionCost, detectSubscriptions } from '@/utils/subscriptions';
 
 export default function ActivityScreen() {
   const { data: transactions, isLoading, isError, refetch } = useTransactions();
@@ -30,6 +32,11 @@ export default function ActivityScreen() {
   const duplicateIds = useMemo(
     () => detectDuplicateTransactionIds(transactions ?? []),
     [transactions]
+  );
+  const subscriptions = useMemo(() => detectSubscriptions(transactions ?? []), [transactions]);
+  const totalMonthlySubscriptionCost = useMemo(
+    () => calculateTotalMonthlySubscriptionCost(subscriptions),
+    [subscriptions]
   );
 
   const allCategories = useMemo(
@@ -89,9 +96,14 @@ export default function ActivityScreen() {
         </View>
       ) : null}
 
-      <View style={styles.budgetsWrapper}>
+      <View style={styles.linkRow}>
         <BudgetsLinkRow />
       </View>
+      {subscriptions.length > 0 ? (
+        <View style={styles.linkRow}>
+          <SubscriptionsLinkRow count={subscriptions.length} totalMonthlyCost={totalMonthlySubscriptionCost} />
+        </View>
+      ) : null}
 
       <AppTextInput
         placeholder="Search transactions"
@@ -147,7 +159,7 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   header: { marginBottom: Spacing.three },
   insightWrapper: { marginBottom: Spacing.two },
-  budgetsWrapper: { marginBottom: Spacing.four },
+  linkRow: { marginBottom: Spacing.two },
   chipRow: { marginBottom: Spacing.four, marginTop: Spacing.one, flexGrow: 0 },
   chipRowContent: { alignItems: 'center', paddingRight: Spacing.three },
 });

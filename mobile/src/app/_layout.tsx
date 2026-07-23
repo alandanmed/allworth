@@ -21,6 +21,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="transaction/[id]" options={{ title: 'Transaction' }} />
       <Stack.Screen name="budgets" options={{ title: 'Budgets' }} />
+      <Stack.Screen name="subscriptions" options={{ title: 'Subscriptions' }} />
     </Stack>
   );
 }
