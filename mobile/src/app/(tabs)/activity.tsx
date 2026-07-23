@@ -4,18 +4,21 @@ import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { AppTextInput } from '@/components/app-text-input';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { InsightCard } from '@/components/insight-card';
 import { LoadingState } from '@/components/loading-state';
 import { ScreenContainer } from '@/components/screen-container';
 import { SuggestionChip } from '@/components/suggestion-chip';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
 import { Spacing } from '@/constants/theme';
+import { useSpendingSummary } from '@/hooks/use-spending-summary';
 import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
 
 export default function ActivityScreen() {
   const { data: transactions, isLoading, isError, refetch } = useTransactions();
+  const spendingSummaryQuery = useSpendingSummary();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
@@ -74,6 +77,17 @@ export default function ActivityScreen() {
         Activity
       </ThemedText>
 
+      {spendingSummaryQuery.data ? (
+        <View style={styles.insightWrapper}>
+          <InsightCard
+            totalSpent={spendingSummaryQuery.data.totalSpent}
+            percentChange={spendingSummaryQuery.data.percentChange}
+            byCategory={spendingSummaryQuery.data.byCategory}
+            maxCategories={5}
+          />
+        </View>
+      ) : null}
+
       <AppTextInput
         placeholder="Search transactions"
         accessibilityLabel="Search transactions"
@@ -127,6 +141,7 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   header: { marginBottom: Spacing.three },
+  insightWrapper: { marginBottom: Spacing.four },
   chipRow: { marginBottom: Spacing.four, marginTop: Spacing.one, flexGrow: 0 },
   chipRowContent: { alignItems: 'center', paddingRight: Spacing.three },
 });
