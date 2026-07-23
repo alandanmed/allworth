@@ -35,3 +35,11 @@ export type ApiTransaction = {
   category: ApiCategory | null;
   created_at: string;
 };
+
+export type ApiNetWorthSnapshot = {
+  id: string;
+  date: string;
+  net_worth: number;
+  total_assets: number;
+  total_liabilities: number;
+};

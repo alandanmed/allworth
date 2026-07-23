@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 import { ErrorState } from '@/components/error-state';
@@ -6,9 +7,9 @@ import { NetWorthChart } from '@/components/net-worth-chart';
 import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
-import { mockNetWorthHistory } from '@/data/mock-net-worth-history';
 import { Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
+import { useNetWorthHistory, useRecordTodaysSnapshot } from '@/hooks/use-net-worth';
 import { useTheme } from '@/hooks/use-theme';
 import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
@@ -31,8 +32,17 @@ export default function HomeScreen() {
   const theme = useTheme();
   const accountsQuery = useAccounts();
   const transactionsQuery = useTransactions();
+  const netWorthHistoryQuery = useNetWorthHistory();
+  const recordSnapshot = useRecordTodaysSnapshot();
 
-  if (accountsQuery.isLoading || transactionsQuery.isLoading) {
+  useEffect(() => {
+    recordSnapshot.mutate();
+    // Only on mount — recording today's snapshot once per app open is enough;
+    // it's a no-op on the backend anyway if called again the same day.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (accountsQuery.isLoading || transactionsQuery.isLoading || netWorthHistoryQuery.isLoading) {
     return (
       <ScreenContainer>
         <LoadingState label="Loading your dashboard..." />
@@ -40,13 +50,14 @@ export default function HomeScreen() {
     );
   }
 
-  if (accountsQuery.isError || transactionsQuery.isError) {
+  if (accountsQuery.isError || transactionsQuery.isError || netWorthHistoryQuery.isError) {
     return (
       <ScreenContainer>
         <ErrorState
           onRetry={() => {
             accountsQuery.refetch();
             transactionsQuery.refetch();
+            netWorthHistoryQuery.refetch();
           }}
         />
       </ScreenContainer>
@@ -55,6 +66,7 @@ export default function HomeScreen() {
 
   const accounts = accountsQuery.data?.accounts ?? [];
   const transactions = transactionsQuery.data ?? [];
+  const netWorthHistory = netWorthHistoryQuery.data ?? [];
 
   const netWorth = calculateNetWorth(accounts);
   const totalAssets = calculateTotalAssets(accounts);
@@ -77,9 +89,11 @@ export default function HomeScreen() {
         Net worth
       </ThemedText>
 
-      <View style={styles.chartWrapper}>
-        <NetWorthChart history={mockNetWorthHistory} />
-      </View>
+      {netWorthHistory.length >= 2 ? (
+        <View style={styles.chartWrapper}>
+          <NetWorthChart history={netWorthHistory} />
+        </View>
+      ) : null}
 
       <View style={styles.statsRow}>
         <View style={[styles.statCard, { backgroundColor: theme.backgroundElement }]}>
