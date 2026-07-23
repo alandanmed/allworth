@@ -10,9 +10,23 @@ import { firebaseAuth } from '@/firebase/config';
 import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from '@/hooks/use-theme';
 
+function ManageRow({ label, onPress }: { label: string; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={[styles.menuRow, { backgroundColor: theme.backgroundElement }]}>
+      <ThemedText type="default">{label}</ThemedText>
+      <ThemedText type="default" themeColor="textSecondary">
+        {'\u203A'}
+      </ThemedText>
+    </Pressable>
+  );
+}
+
 export default function ProfileScreen() {
   const { user } = useAuth();
-  const theme = useTheme();
 
   return (
     <ScreenContainer>
@@ -30,15 +44,10 @@ export default function ProfileScreen() {
       <ThemedText type="smallBold" style={styles.sectionLabel}>
         Manage
       </ThemedText>
-      <Pressable
-        onPress={() => router.push('/budgets')}
-        accessibilityRole="button"
-        style={[styles.menuRow, { backgroundColor: theme.backgroundElement }]}>
-        <ThemedText type="default">Budgets</ThemedText>
-        <ThemedText type="default" themeColor="textSecondary">
-          {'\u203A'}
-        </ThemedText>
-      </Pressable>
+      <View style={styles.manageList}>
+        <ManageRow label="Budgets" onPress={() => router.push('/budgets')} />
+        <ManageRow label="Subscriptions" onPress={() => router.push('/subscriptions')} />
+      </View>
 
       <AppButton
         label="Log Out"
@@ -54,15 +63,13 @@ const styles = StyleSheet.create({
   header: { marginBottom: Spacing.four },
   emailBlock: { marginBottom: Spacing.five },
   sectionLabel: { marginBottom: Spacing.two },
+  manageList: { marginBottom: Spacing.five, gap: Spacing.two },
   menuRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: Radius.medium,
     padding: Spacing.three,
-    marginBottom: Spacing.five,
   },
-  logoutButton: {
-    marginTop: Spacing.two,
-  },
+  logoutButton: { marginTop: Spacing.two },
 });

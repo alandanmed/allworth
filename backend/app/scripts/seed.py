@@ -101,6 +101,16 @@ def seed() -> None:
                             merchant="Delta Air Lines", amount=Decimal("412.00"), date="2026-07-09", status="completed"),
                 Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Utilities"].id,
                             merchant="Georgia Power", amount=Decimal("89.44"), date="2026-07-08", status="completed"),
+                # Historical subscription charges — needed so Netflix/Spotify qualify as
+                # recurring (2+ occurrences) for the Subscriptions feature.
+                Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
+                            merchant="Netflix", amount=Decimal("15.49"), date="2026-06-14", status="completed"),
+                Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
+                            merchant="Spotify", amount=Decimal("11.99"), date="2026-06-11", status="completed"),
+                Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
+                            merchant="Netflix", amount=Decimal("15.49"), date="2026-05-14", status="completed"),
+                Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
+                            merchant="Spotify", amount=Decimal("11.99"), date="2026-05-11", status="completed"),
             ]
             db.add_all(transactions)
             db.commit()
@@ -111,8 +121,6 @@ def seed() -> None:
         # --- Historical net worth snapshots ---
         if not db.query(NetWorthSnapshot).filter(NetWorthSnapshot.user_id == user.id).first():
             for snap in HISTORICAL_SNAPSHOTS:
-                # Approximate historical assets/liabilities split for realism;
-                # only net_worth is used by the chart today.
                 db.add(NetWorthSnapshot(
                     user_id=user.id,
                     date=snap["date"],
