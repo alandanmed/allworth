@@ -140,6 +140,7 @@ export default function HomeScreen() {
           <SpendingSummaryLink
             totalSpent={spendingSummary.totalSpent}
             percentChange={spendingSummary.percentChange}
+            previousMonthTotalSpent={spendingSummary.previousMonthTotalSpent}
           />
         </View>
       ) : null}
