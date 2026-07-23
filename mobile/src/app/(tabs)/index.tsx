@@ -5,11 +5,13 @@ import { ErrorState } from '@/components/error-state';
 import { LoadingState } from '@/components/loading-state';
 import { NetWorthChart } from '@/components/net-worth-chart';
 import { ScreenContainer } from '@/components/screen-container';
+import { SpendingSummaryLink } from '@/components/spending-summary-link';
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
 import { Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useNetWorthHistory, useRecordTodaysSnapshot } from '@/hooks/use-net-worth';
+import { useSpendingSummary } from '@/hooks/use-spending-summary';
 import { useTheme } from '@/hooks/use-theme';
 import { useTransactions } from '@/hooks/use-transactions';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
@@ -33,16 +35,23 @@ export default function HomeScreen() {
   const accountsQuery = useAccounts();
   const transactionsQuery = useTransactions();
   const netWorthHistoryQuery = useNetWorthHistory();
+  const spendingSummaryQuery = useSpendingSummary();
   const recordSnapshot = useRecordTodaysSnapshot();
 
   useEffect(() => {
     recordSnapshot.mutate();
-    // Only on mount — recording today's snapshot once per app open is enough;
-    // it's a no-op on the backend anyway if called again the same day.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (accountsQuery.isLoading || transactionsQuery.isLoading || netWorthHistoryQuery.isLoading) {
+  const isLoading =
+    accountsQuery.isLoading || transactionsQuery.isLoading ||
+    netWorthHistoryQuery.isLoading || spendingSummaryQuery.isLoading;
+
+  const isError =
+    accountsQuery.isError || transactionsQuery.isError ||
+    netWorthHistoryQuery.isError || spendingSummaryQuery.isError;
+
+  if (isLoading) {
     return (
       <ScreenContainer>
         <LoadingState label="Loading your dashboard..." />
@@ -50,7 +59,7 @@ export default function HomeScreen() {
     );
   }
 
-  if (accountsQuery.isError || transactionsQuery.isError || netWorthHistoryQuery.isError) {
+  if (isError) {
     return (
       <ScreenContainer>
         <ErrorState
@@ -58,6 +67,7 @@ export default function HomeScreen() {
             accountsQuery.refetch();
             transactionsQuery.refetch();
             netWorthHistoryQuery.refetch();
+            spendingSummaryQuery.refetch();
           }}
         />
       </ScreenContainer>
@@ -67,6 +77,7 @@ export default function HomeScreen() {
   const accounts = accountsQuery.data?.accounts ?? [];
   const transactions = transactionsQuery.data ?? [];
   const netWorthHistory = netWorthHistoryQuery.data ?? [];
+  const spendingSummary = spendingSummaryQuery.data;
 
   const netWorth = calculateNetWorth(accounts);
   const totalAssets = calculateTotalAssets(accounts);
@@ -124,6 +135,15 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {spendingSummary ? (
+        <View style={styles.insightWrapper}>
+          <SpendingSummaryLink
+            totalSpent={spendingSummary.totalSpent}
+            percentChange={spendingSummary.percentChange}
+          />
+        </View>
+      ) : null}
+
       <ThemedText type="smallBold" style={styles.sectionTitle}>
         Recent transactions
       </ThemedText>
@@ -151,5 +171,6 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', gap: Spacing.two, marginBottom: Spacing.four },
   statCard: { flex: 1, borderRadius: Radius.medium, padding: Spacing.three },
   statValue: { marginTop: Spacing.one, fontSize: 20, lineHeight: 24 },
+  insightWrapper: { marginBottom: Spacing.four },
   sectionTitle: { marginBottom: Spacing.two },
 });
