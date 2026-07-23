@@ -8,17 +8,30 @@ import { ThemedText } from './themed-text';
 
 type SpendingSummaryLinkProps = {
   totalSpent: number;
+  previousMonthTotalSpent: number;
   percentChange: number | null;
 };
 
-export function SpendingSummaryLink({ totalSpent, percentChange }: SpendingSummaryLinkProps) {
+const MIN_PREVIOUS_MONTH_FOR_PERCENT = 50;
+
+export function SpendingSummaryLink({
+  totalSpent,
+  previousMonthTotalSpent,
+  percentChange,
+}: SpendingSummaryLinkProps) {
   const theme = useTheme();
   const hasComparison = percentChange !== null;
-  const isIncreasing = hasComparison && percentChange > 0;
+  const dollarDiff = totalSpent - previousMonthTotalSpent;
+  const isIncreasing = dollarDiff > 0;
+  const showPercent = hasComparison && previousMonthTotalSpent >= MIN_PREVIOUS_MONTH_FOR_PERCENT;
 
-  const trendLabel = hasComparison
-    ? `${isIncreasing ? '+' : ''}${percentChange}% vs last month`
-    : 'No prior month to compare';
+  let trendLabel = 'No prior month to compare';
+  if (hasComparison) {
+    const diffLabel = `${isIncreasing ? '+' : '-'}${formatCurrency(Math.abs(dollarDiff))}`;
+    trendLabel = showPercent
+      ? `${diffLabel} (${isIncreasing ? '+' : ''}${percentChange}%) vs last month`
+      : `${diffLabel} vs last month`;
+  }
 
   return (
     <Pressable

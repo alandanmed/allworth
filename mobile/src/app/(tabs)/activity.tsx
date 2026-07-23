@@ -90,6 +90,7 @@ export default function ActivityScreen() {
           <InsightCard
             totalSpent={spendingSummaryQuery.data.totalSpent}
             percentChange={spendingSummaryQuery.data.percentChange}
+            previousMonthTotalSpent={spendingSummaryQuery.data.previousMonthTotalSpent}
             byCategory={spendingSummaryQuery.data.byCategory}
             maxCategories={5}
           />

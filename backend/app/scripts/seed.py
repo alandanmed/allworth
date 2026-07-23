@@ -81,6 +81,7 @@ def seed() -> None:
             db.flush()
 
             transactions = [
+                # --- July (current month) ---
                 Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Groceries"].id,
                             merchant="Trader Joe's", amount=Decimal("64.32"), date="2026-07-15", status="completed"),
                 Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
@@ -101,12 +102,27 @@ def seed() -> None:
                             merchant="Delta Air Lines", amount=Decimal("412.00"), date="2026-07-09", status="completed"),
                 Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Utilities"].id,
                             merchant="Georgia Power", amount=Decimal("89.44"), date="2026-07-08", status="completed"),
-                # Historical subscription charges — needed so Netflix/Spotify qualify as
-                # recurring (2+ occurrences) for the Subscriptions feature.
+
+                # --- June (prior month) — a realistic full month, so month-to-month
+                # comparisons produce sensible percentages instead of misleading spikes ---
+                Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Groceries"].id,
+                            merchant="Trader Joe's", amount=Decimal("58.20"), date="2026-06-15", status="completed"),
+                Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Transportation"].id,
+                            merchant="Shell Gas Station", amount=Decimal("39.50"), date="2026-06-14", status="completed"),
+                Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Dining"].id,
+                            merchant="Chipotle", amount=Decimal("12.90"), date="2026-06-10", status="completed"),
+                Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Shopping"].id,
+                            merchant="Amazon", amount=Decimal("95.40"), date="2026-06-08", status="completed"),
+                Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Utilities"].id,
+                            merchant="Georgia Power", amount=Decimal("84.10"), date="2026-06-07", status="completed"),
+                Transaction(account_id=accounts["checking"].id, category_id=categories_by_name["Income"].id,
+                            merchant="Payroll Deposit", amount=Decimal("-2100.00"), date="2026-06-12", status="completed"),
                 Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
                             merchant="Netflix", amount=Decimal("15.49"), date="2026-06-14", status="completed"),
                 Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
                             merchant="Spotify", amount=Decimal("11.99"), date="2026-06-11", status="completed"),
+
+                # --- May — one more month back, just for subscription recurring detection ---
                 Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
                             merchant="Netflix", amount=Decimal("15.49"), date="2026-05-14", status="completed"),
                 Transaction(account_id=accounts["credit"].id, category_id=categories_by_name["Subscriptions"].id,
