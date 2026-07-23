@@ -43,3 +43,16 @@ export type ApiNetWorthSnapshot = {
   total_assets: number;
   total_liabilities: number;
 };
+
+export type ApiSpendingByCategory = {
+  category: string;
+  total: number;
+};
+
+export type ApiSpendingSummary = {
+  month: string;
+  total_spent: number;
+  previous_month_total_spent: number;
+  percent_change: number | null;
+  by_category: ApiSpendingByCategory[];
+};
