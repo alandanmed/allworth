@@ -56,3 +56,13 @@ export type ApiSpendingSummary = {
   percent_change: number | null;
   by_category: ApiSpendingByCategory[];
 };
+
+export type ApiBudget = {
+  id: string;
+  category: ApiCategory;
+  monthly_limit: number;
+  spent_this_month: number;
+  remaining: number;
+  percent_used: number;
+  is_over_budget: boolean;
+};

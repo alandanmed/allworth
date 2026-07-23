@@ -37,10 +37,16 @@ export async function apiGet<T>(
   return response.json();
 }
 
-export async function apiPost<T>(path: string): Promise<T> {
+export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const url = new URL(path, API_BASE_URL);
-  const headers = await getAuthHeaders();
-  const response = await fetch(url.toString(), { method: 'POST', headers });
+  const authHeaders = await getAuthHeaders();
+  const headers: HeadersInit = { ...authHeaders, 'Content-Type': 'application/json' };
+
+  const response = await fetch(url.toString(), {
+    method: 'POST',
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
 
   if (!response.ok) {
     throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
