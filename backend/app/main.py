@@ -3,14 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logging_config import configure_logging
-from app.routers import accounts, health, transactions
+from app.routers import accounts, health, net_worth, transactions
 
 configure_logging()
 
 app = FastAPI(title=settings.app_name)
 
-# Dev-only: wide open so the Expo app (simulator, web, or Expo Go) can always reach the API.
-# This MUST be tightened to specific origins before any real deployment (Phase 12).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,6 +19,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(accounts.router)
 app.include_router(transactions.router)
+app.include_router(net_worth.router)
 
 
 @app.get("/")
