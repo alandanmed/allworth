@@ -7,20 +7,37 @@ import { ThemedText } from './themed-text';
 
 type InsightCardProps = {
   totalSpent: number;
+  previousMonthTotalSpent: number;
   percentChange: number | null;
   byCategory: { category: string; total: number }[];
   maxCategories?: number;
 };
 
-export function InsightCard({ totalSpent, percentChange, byCategory, maxCategories = 3 }: InsightCardProps) {
+// Below this, last month's total is too small for a percentage to mean anything
+// useful (e.g. "$15 → $200" is technically "+1233%" but reads as nonsense).
+const MIN_PREVIOUS_MONTH_FOR_PERCENT = 50;
+
+export function InsightCard({
+  totalSpent,
+  previousMonthTotalSpent,
+  percentChange,
+  byCategory,
+  maxCategories = 3,
+}: InsightCardProps) {
   const theme = useTheme();
   const topCategories = byCategory.slice(0, maxCategories);
   const hasComparison = percentChange !== null;
-  const isIncreasing = hasComparison && percentChange > 0;
+  const dollarDiff = totalSpent - previousMonthTotalSpent;
+  const isIncreasing = dollarDiff > 0;
+  const showPercent = hasComparison && previousMonthTotalSpent >= MIN_PREVIOUS_MONTH_FOR_PERCENT;
 
-  const trendLabel = hasComparison
-    ? `${isIncreasing ? '+' : ''}${percentChange}% vs last month`
-    : 'No prior month to compare';
+  let trendLabel = 'No prior month to compare';
+  if (hasComparison) {
+    const diffLabel = `${isIncreasing ? '+' : '-'}${formatCurrency(Math.abs(dollarDiff))}`;
+    trendLabel = showPercent
+      ? `${diffLabel} (${isIncreasing ? '+' : ''}${percentChange}%) vs last month`
+      : `${diffLabel} vs last month`;
+  }
 
   const trendColor = hasComparison ? (isIncreasing ? 'danger' : 'success') : 'textSecondary';
 
