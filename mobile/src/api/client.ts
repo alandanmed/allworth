@@ -53,3 +53,13 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   }
   return response.json();
 }
+
+export async function apiDelete(path: string): Promise<void> {
+  const url = new URL(path, API_BASE_URL);
+  const headers = await getAuthHeaders();
+  const response = await fetch(url.toString(), { method: 'DELETE', headers });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+  }
+}
