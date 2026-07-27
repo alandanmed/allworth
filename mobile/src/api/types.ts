@@ -66,3 +66,21 @@ export type ApiBudget = {
   percent_used: number;
   is_over_budget: boolean;
 };
+
+export type ApiChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
+};
+
+export type ApiChatResponse = {
+  conversation_id: string;
+  message: ApiChatMessage;
+};
+
+export type ApiChatConversationSummary = {
+  id: string;
+  created_at: string;
+  preview: string;
+};
