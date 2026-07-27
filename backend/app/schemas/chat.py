@@ -21,3 +21,9 @@ class ChatMessageOut(BaseModel):
 class ChatResponseOut(BaseModel):
     conversation_id: uuid.UUID
     message: ChatMessageOut
+
+
+class ChatConversationSummaryOut(BaseModel):
+    id: uuid.UUID
+    created_at: datetime
+    preview: str
