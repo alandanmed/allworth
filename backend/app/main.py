@@ -13,6 +13,7 @@ from app.routers import (
     daily_summary,
     health,
     net_worth,
+    plaid,
     transactions,
 )
 
@@ -37,6 +38,7 @@ app.include_router(categories.router)
 app.include_router(chat.router)
 app.include_router(daily_summary.router)
 app.include_router(users.router)
+app.include_router(plaid.router)
 
 
 @app.get("/")

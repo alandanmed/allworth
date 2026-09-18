@@ -8,7 +8,7 @@ LIABILITY_ACCOUNT_TYPES = {"credit_card", "loan"}
 
 
 def calculate_totals(db: Session, user_id) -> dict[str, Decimal]:
-    accounts = db.query(Account).filter(Account.user_id == user_id).all()
+    accounts = db.query(Account).filter(Account.user_id == user_id, Account.sync_status != "disconnected").all()
 
     total_assets = sum(
         (a.balance for a in accounts if a.type not in LIABILITY_ACCOUNT_TYPES), Decimal("0")
