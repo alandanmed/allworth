@@ -1,6 +1,5 @@
-from datetime import date
 from decimal import Decimal
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -32,6 +31,33 @@ def _setup_user(db_session, uid="chat-uid", email="chat@example.com"):
     return user
 
 
+def _mock_claude_response_with_tool_call(mock_client, tool_name="get_net_worth", tool_input=None):
+    """
+    Builds a fake Anthropic client whose .messages.create() first returns a
+    tool_use block, then a final text-only response — mirroring the real
+    two-round-trip shape generate_response() expects, with zero real API cost.
+    """
+    tool_use_block = MagicMock()
+    tool_use_block.type = "tool_use"
+    tool_use_block.name = tool_name
+    tool_use_block.input = tool_input or {}
+    tool_use_block.id = "toolu_fake123"
+
+    first_response = MagicMock()
+    first_response.stop_reason = "tool_use"
+    first_response.content = [tool_use_block]
+
+    text_block = MagicMock()
+    text_block.type = "text"
+    text_block.text = "Your current net worth is $500.00."
+
+    final_response = MagicMock()
+    final_response.stop_reason = "end_turn"
+    final_response.content = [text_block]
+
+    mock_client.messages.create.side_effect = [first_response, final_response]
+
+
 def test_first_message_creates_a_new_conversation(db_session):
     user = _setup_user(db_session)
 
@@ -40,7 +66,9 @@ def test_first_message_creates_a_new_conversation(db_session):
         with patch(
             "app.dependencies.verify_firebase_token",
             return_value={"uid": "chat-uid", "email": "chat@example.com"},
-        ):
+        ), patch("app.ai.claude_assistant.client") as mock_client:
+            _mock_claude_response_with_tool_call(mock_client)
+
             response = client.post(
                 "/chat",
                 json={"message": "what's my net worth?"},
@@ -58,7 +86,7 @@ def test_first_message_creates_a_new_conversation(db_session):
         assert conversation.user_id == user.id
 
         messages = db_session.query(ChatMessage).filter(ChatMessage.conversation_id == conversation_id).all()
-        assert len(messages) == 2  # user message + assistant reply
+        assert len(messages) == 2
 
         tool_logs = (
             db_session.query(AiToolCallLog)
@@ -67,7 +95,7 @@ def test_first_message_creates_a_new_conversation(db_session):
             .all()
         )
         assert len(tool_logs) == 1
-        assert tool_logs[0].tool_name == "net_worth"
+        assert tool_logs[0].tool_name == "get_net_worth"
     finally:
         app.dependency_overrides.clear()
 
@@ -80,12 +108,14 @@ def test_followup_message_reuses_same_conversation(db_session):
         with patch(
             "app.dependencies.verify_firebase_token",
             return_value={"uid": "chat-uid-2", "email": "chat2@example.com"},
-        ):
+        ), patch("app.ai.claude_assistant.client") as mock_client:
+            _mock_claude_response_with_tool_call(mock_client)
             first = client.post(
                 "/chat", json={"message": "what's my net worth?"}, headers={"Authorization": "Bearer fake"}
             )
             conversation_id = first.json()["conversation_id"]
 
+            _mock_claude_response_with_tool_call(mock_client, tool_name="get_account_balances")
             second = client.post(
                 "/chat",
                 json={"conversation_id": conversation_id, "message": "what about my balances?"},
@@ -95,7 +125,7 @@ def test_followup_message_reuses_same_conversation(db_session):
         assert second.json()["conversation_id"] == conversation_id
 
         messages = db_session.query(ChatMessage).filter(ChatMessage.conversation_id == conversation_id).all()
-        assert len(messages) == 4  # 2 user + 2 assistant across both turns
+        assert len(messages) == 4
     finally:
         app.dependency_overrides.clear()
 
