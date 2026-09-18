@@ -17,7 +17,7 @@ def _total_spent(db: Session, user_id, start: date, end: date):
     result = (
         db.query(func.coalesce(func.sum(Transaction.amount), 0))
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= start, Transaction.date <= end)
         .filter(Transaction.amount > 0)
         .scalar()
@@ -48,7 +48,7 @@ def get_spending_summary(
         db.query(Category.name, func.sum(Transaction.amount))
         .join(Transaction, Transaction.category_id == Category.id)
         .join(Account, Account.id == Transaction.account_id)
-        .filter(Account.user_id == current_user.id)
+        .filter(Account.user_id == current_user.id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= start, Transaction.date <= end)
         .filter(Transaction.amount > 0)
         .group_by(Category.name)

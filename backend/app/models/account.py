@@ -19,6 +19,10 @@ class Account(Base):
     institution_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("institutions.id", ondelete="RESTRICT"), nullable=False
     )
+    bank_connection_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bank_connections.id", ondelete="CASCADE"), nullable=True
+    )
+    plaid_account_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     type: Mapped[str] = mapped_column(String(20), nullable=False)
     balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0)
@@ -31,3 +35,4 @@ class Account(Base):
 
     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
     institution = relationship("Institution")
+    bank_connection = relationship("BankConnection")

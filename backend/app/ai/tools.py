@@ -30,7 +30,7 @@ def get_net_worth(db: Session, user_id) -> dict:
 
 def get_account_balances(db: Session, user_id) -> dict:
     """Returns every account the user has, with its name, type, and current balance."""
-    accounts = db.query(Account).filter(Account.user_id == user_id).all()
+    accounts = db.query(Account).filter(Account.user_id == user_id, Account.sync_status != "disconnected").all()
     return {
         "accounts": [
             {"name": a.name, "type": a.type, "balance": float(a.balance)} for a in accounts
@@ -44,7 +44,7 @@ def get_recent_transactions(db: Session, user_id, limit: int = 10) -> dict:
     transactions = (
         db.query(Transaction)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .order_by(Transaction.date.desc())
         .limit(limit)
         .all()
@@ -80,7 +80,7 @@ def get_spending_by_category(db: Session, user_id, month: str | None = None) -> 
         db.query(Category.name, func.sum(Transaction.amount))
         .join(Transaction, Transaction.category_id == Category.id)
         .join(Account, Account.id == Transaction.account_id)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= start, Transaction.date <= end)
         .filter(Transaction.amount > 0)
         .group_by(Category.name)
@@ -125,7 +125,7 @@ def get_subscriptions(db: Session, user_id) -> dict:
     transactions = (
         db.query(Transaction)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .all()
     )
     simple_transactions = [
@@ -147,7 +147,7 @@ def find_large_transactions(db: Session, user_id, limit: int = 5) -> dict:
     transactions = (
         db.query(Transaction)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= cutoff)
         .filter(Transaction.amount > 0)
         .order_by(Transaction.amount.desc())

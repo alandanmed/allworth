@@ -22,7 +22,7 @@ def _spent_this_month(db: Session, user_id, category_id) -> Decimal:
     result = (
         db.query(func.coalesce(func.sum(Transaction.amount), 0))
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.category_id == category_id)
         .filter(Transaction.date >= start, Transaction.date <= end)
         .filter(Transaction.amount > 0)
