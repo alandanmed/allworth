@@ -16,7 +16,7 @@ def list_accounts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[Account]:
-    return db.query(Account).filter(Account.user_id == current_user.id).all()
+    return db.query(Account).filter(Account.user_id == current_user.id, Account.sync_status != "disconnected").all()
 
 
 @router.get("/{account_id}", response_model=AccountOut)
@@ -27,7 +27,7 @@ def get_account(
 ) -> Account:
     account = (
         db.query(Account)
-        .filter(Account.id == account_id, Account.user_id == current_user.id)
+        .filter(Account.id == account_id, Account.user_id == current_user.id, Account.sync_status != "disconnected")
         .first()
     )
     if not account:

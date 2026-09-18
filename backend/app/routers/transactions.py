@@ -21,7 +21,7 @@ def list_transactions(
     query = (
         db.query(Transaction)
         .join(Account)
-        .filter(Account.user_id == current_user.id)
+        .filter(Account.user_id == current_user.id, Account.sync_status != "disconnected")
         .options(joinedload(Transaction.category))
     )
 
@@ -43,7 +43,7 @@ def get_transaction(
     transaction = (
         db.query(Transaction)
         .join(Account)
-        .filter(Transaction.id == transaction_id, Account.user_id == current_user.id)
+        .filter(Transaction.id == transaction_id, Account.user_id == current_user.id, Account.sync_status != "disconnected")
         .first()
     )
     if not transaction:
