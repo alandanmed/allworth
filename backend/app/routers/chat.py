@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.ai.mock_assistant import generate_response
+from app.ai.claude_assistant import generate_response
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import AiToolCallLog, ChatConversation, ChatMessage, User

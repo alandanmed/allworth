@@ -5,7 +5,7 @@ from decimal import Decimal
 from app.database import SessionLocal
 from app.models import Account, Category, Institution, NetWorthSnapshot, Transaction, User
 
-DEMO_USER_ID = uuid.UUID("58f133da-f42a-4bca-8442-c40eabcaaaee")
+DEMO_USER_ID = uuid.UUID("ac2b4903-5eff-44d4-bb27-f786aeab959d")
 
 HISTORICAL_SNAPSHOTS = [
     {"date": date(2026, 2, 1), "net_worth": Decimal("11820.30")},
