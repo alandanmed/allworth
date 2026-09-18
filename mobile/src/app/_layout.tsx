@@ -5,12 +5,14 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
+import { useNotificationResponseHandler } from '@/hooks/use-notification-response';
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  useNotificationResponseHandler();
   const { isLoading } = useAuth();
 
   if (isLoading) return null;
@@ -22,6 +24,7 @@ function RootLayoutNav() {
       <Stack.Screen name="transaction/[id]" options={{ title: 'Transaction' }} />
       <Stack.Screen name="budgets" options={{ title: 'Budgets' }} />
       <Stack.Screen name="subscriptions" options={{ title: 'Subscriptions' }} />
+      <Stack.Screen name="daily-summary" options={{ title: 'Daily Summary' }} />
     </Stack>
   );
 }
