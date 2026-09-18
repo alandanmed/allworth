@@ -84,3 +84,19 @@ export type ApiChatConversationSummary = {
   created_at: string;
   preview: string;
 };
+
+export type ApiDailySummary = {
+  id: string;
+  date: string;
+  total_spent: number;
+  total_income: number;
+  by_category: { category: string; total: number }[];
+  daily_average: number;
+  percent_vs_average: number | null;
+  unusual_transactions: { merchant: string; amount: number; category: string }[];
+  budget_warnings: { category: string; percent_used: number; is_over_budget: boolean }[];
+};
+
+export type ApiUserPreferences = {
+  daily_summary_enabled: boolean;
+};

@@ -10,10 +10,14 @@ import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
 import { Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
+import { useGenerateDailySummary } from '@/hooks/use-daily-summary';
 import { useNetWorthHistory, useRecordTodaysSnapshot } from '@/hooks/use-net-worth';
 import { useSpendingSummary } from '@/hooks/use-spending-summary';
 import { useTheme } from '@/hooks/use-theme';
 import { useTransactions } from '@/hooks/use-transactions';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
+import { todayLocalIsoDate } from '@/utils/date';
+import { fireDailySummaryNotification, requestNotificationPermission } from '@/utils/notifications';
 import { detectDuplicateTransactionIds } from '@/utils/duplicates';
 import { detectRecurringTransactionIds } from '@/utils/recurring';
 import {
@@ -30,18 +34,41 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
+
 export default function HomeScreen() {
   const theme = useTheme();
   const accountsQuery = useAccounts();
   const transactionsQuery = useTransactions();
   const netWorthHistoryQuery = useNetWorthHistory();
   const spendingSummaryQuery = useSpendingSummary();
+  const preferencesQuery = useUserPreferences();
   const recordSnapshot = useRecordTodaysSnapshot();
+  const generateDailySummary = useGenerateDailySummary();
 
   useEffect(() => {
     recordSnapshot.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    // Wait until we actually know the user's real preference before deciding
+    // whether to generate/notify — avoids firing a notification for someone
+    // who explicitly turned this off, just because the query hadn't loaded yet.
+    if (preferencesQuery.isLoading || !preferencesQuery.data) return;
+    if (!preferencesQuery.data.daily_summary_enabled) return;
+
+    (async () => {
+      const granted = await requestNotificationPermission();
+      generateDailySummary.mutate(undefined, {
+        onSuccess: async () => {
+          if (granted) {
+            await fireDailySummaryNotification(todayLocalIsoDate());
+          }
+        },
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferencesQuery.isLoading, preferencesQuery.data]);
 
   const isLoading =
     accountsQuery.isLoading || transactionsQuery.isLoading ||
@@ -139,8 +166,8 @@ export default function HomeScreen() {
         <View style={styles.insightWrapper}>
           <SpendingSummaryLink
             totalSpent={spendingSummary.totalSpent}
-            percentChange={spendingSummary.percentChange}
             previousMonthTotalSpent={spendingSummary.previousMonthTotalSpent}
+            percentChange={spendingSummary.percentChange}
           />
         </View>
       ) : null}
