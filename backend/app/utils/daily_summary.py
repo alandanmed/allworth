@@ -15,7 +15,7 @@ def calculate_daily_summary(db: Session, user_id, target_date: date) -> dict:
     todays_transactions = (
         db.query(Transaction)
         .join(Account)
-        .filter(Account.user_id == user_id, Transaction.date == target_date)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected", Transaction.date == target_date)
         .all()
     )
 
@@ -37,7 +37,7 @@ def calculate_daily_summary(db: Session, user_id, target_date: date) -> dict:
     trailing_total = (
         db.query(func.coalesce(func.sum(Transaction.amount), 0))
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= window_start, Transaction.date <= window_end)
         .filter(Transaction.amount > 0)
         .scalar()
@@ -52,7 +52,7 @@ def calculate_daily_summary(db: Session, user_id, target_date: date) -> dict:
     trailing_transactions_count = (
         db.query(func.count(Transaction.id))
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
         .filter(Transaction.date >= window_start, Transaction.date <= window_end)
         .filter(Transaction.amount > 0)
         .scalar()
@@ -82,7 +82,7 @@ def calculate_daily_summary(db: Session, user_id, target_date: date) -> dict:
         spent_this_month = (
             db.query(func.coalesce(func.sum(Transaction.amount), 0))
             .join(Account)
-            .filter(Account.user_id == user_id)
+            .filter(Account.user_id == user_id, Account.sync_status != "disconnected")
             .filter(Transaction.category_id == budget.category_id)
             .filter(Transaction.date >= month_start, Transaction.date <= month_end)
             .filter(Transaction.amount > 0)

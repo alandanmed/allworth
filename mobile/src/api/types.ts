@@ -100,3 +100,16 @@ export type ApiDailySummary = {
 export type ApiUserPreferences = {
   daily_summary_enabled: boolean;
 };
+
+export type ApiBankConnection = {
+  id: string;
+  institution_name: string;
+  status: string;
+  accounts_synced: number;
+};
+
+export type ApiSyncResult = {
+  accounts_synced: number;
+  transactions_added: number;
+  transactions_skipped_duplicate: number;
+};

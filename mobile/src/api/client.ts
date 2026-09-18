@@ -10,6 +10,19 @@ export class ApiError extends Error {
   }
 }
 
+async function throwApiError(path: string, response: Response): Promise<never> {
+  let message = `Request to ${path} failed with status ${response.status}`;
+  try {
+    const body = await response.json();
+    if (body && typeof body.detail === 'string' && body.detail.trim()) {
+      message = body.detail;
+    }
+  } catch {
+    // Response body wasn't JSON (or was empty) — keep the generic message.
+  }
+  throw new ApiError(response.status, message);
+}
+
 async function getAuthHeaders(): Promise<HeadersInit> {
   const currentUser = firebaseAuth.currentUser;
   if (!currentUser) return {};
@@ -32,7 +45,7 @@ export async function apiGet<T>(
   const response = await fetch(url.toString(), { headers });
 
   if (!response.ok) {
-    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    await throwApiError(path, response);
   }
   return response.json();
 }
@@ -49,7 +62,7 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    await throwApiError(path, response);
   }
   return response.json();
 }
@@ -66,7 +79,7 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    await throwApiError(path, response);
   }
   return response.json();
 }
@@ -77,6 +90,6 @@ export async function apiDelete(path: string): Promise<void> {
   const response = await fetch(url.toString(), { method: 'DELETE', headers });
 
   if (!response.ok) {
-    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    await throwApiError(path, response);
   }
 }

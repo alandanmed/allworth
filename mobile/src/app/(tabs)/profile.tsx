@@ -74,6 +74,7 @@ export default function ProfileScreen() {
       <View style={styles.manageList}>
         <ManageRow label="Budgets" onPress={() => router.push('/budgets')} />
         <ManageRow label="Subscriptions" onPress={() => router.push('/subscriptions')} />
+        <ManageRow label="Bank Connections" onPress={() => router.push('/bank-connections')} />
       </View>
 
       <ThemedText type="smallBold" style={styles.sectionLabel}>
