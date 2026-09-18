@@ -3,7 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.logging_config import configure_logging
-from app.routers import accounts, analytics, budgets, categories, chat, health, net_worth, transactions
+from app.routers import (
+    users,
+    accounts,
+    analytics,
+    budgets,
+    categories,
+    chat,
+    daily_summary,
+    health,
+    net_worth,
+    transactions,
+)
 
 configure_logging()
 
@@ -24,6 +35,8 @@ app.include_router(analytics.router)
 app.include_router(budgets.router)
 app.include_router(categories.router)
 app.include_router(chat.router)
+app.include_router(daily_summary.router)
+app.include_router(users.router)
 
 
 @app.get("/")

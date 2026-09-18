@@ -54,6 +54,23 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   return response.json();
 }
 
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const url = new URL(path, API_BASE_URL);
+  const authHeaders = await getAuthHeaders();
+  const headers: HeadersInit = { ...authHeaders, 'Content-Type': 'application/json' };
+
+  const response = await fetch(url.toString(), {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+  }
+  return response.json();
+}
+
 export async function apiDelete(path: string): Promise<void> {
   const url = new URL(path, API_BASE_URL);
   const headers = await getAuthHeaders();
