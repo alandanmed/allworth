@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { Account } from '@/types/finance';
 import { formatCurrency } from '@/utils/net-worth';
 import { ThemedText } from './themed-text';
@@ -19,11 +20,12 @@ type AccountRowProps = {
 };
 
 export function AccountRow({ account, isLast = false }: AccountRowProps) {
+  const theme = useTheme();
   const label = `${account.name}, ending in ${account.lastFourDigits}, balance ${formatCurrency(account.balance)}`;
 
   return (
     <View
-      style={[styles.row, !isLast && styles.divider]}
+      style={[styles.row, !isLast && styles.divider, !isLast && { borderBottomColor: theme.border }]}
       accessible
       accessibilityLabel={label}>
       <View style={styles.left}>
@@ -46,7 +48,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#00000022',
   },
   left: {
     flex: 1,
