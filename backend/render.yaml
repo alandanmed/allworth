@@ -1,0 +1,34 @@
+databases:
+  - name: allworth-db
+    plan: free
+    databaseName: allworth
+    user: allworth
+
+services:
+  - type: web
+    name: allworth-api
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: allworth-db
+          property: connectionString
+      - key: FIREBASE_SERVICE_ACCOUNT_PATH
+        value: /etc/secrets/firebase-service-account.json
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PLAID_CLIENT_ID
+        sync: false
+      - key: PLAID_SECRET
+        sync: false
+      - key: PLAID_ENV
+        value: sandbox
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false
