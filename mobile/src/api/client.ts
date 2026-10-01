@@ -1,6 +1,9 @@
 import { firebaseAuth } from '@/firebase/config';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// Overridable so the app can point at the deployed backend (e.g. for
+// screenshots or a demo) without editing source: run with
+// `EXPO_PUBLIC_API_BASE_URL=https://your-api.onrender.com npx expo start`.
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000';
 
 export class ApiError extends Error {
   status: number;
