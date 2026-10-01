@@ -166,6 +166,10 @@ export default function AssistantScreen() {
             </View>
           </View>
 
+          <ThemedText type="small" themeColor="textSecondary" style={styles.disclaimer}>
+            Educational insights only — not professional financial advice.
+          </ThemedText>
+
           <View style={styles.middle}>
             {messages.length === 0 ? (
               <View>
@@ -254,6 +258,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.three,
   },
   headerActions: { flexDirection: 'row', gap: Spacing.three },
+  disclaimer: { marginBottom: Spacing.three },
   middle: { flex: 1 },
   emptyText: { marginBottom: Spacing.three },
   promptGrid: {
