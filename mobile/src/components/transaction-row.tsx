@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { Transaction } from '@/types/finance';
 import { formatCurrency } from '@/utils/net-worth';
 import { ThemedText } from './themed-text';
@@ -19,6 +20,7 @@ export function TransactionRow({
   isRecurring = false,
   isDuplicate = false,
 }: TransactionRowProps) {
+  const theme = useTheme();
   const isIncome = transaction.amount < 0;
 
   // Duplicate warning takes priority over recurring tag if somehow both apply —
@@ -34,7 +36,7 @@ export function TransactionRow({
       onPress={() => router.push(`/transaction/${transaction.id}`)}
       accessibilityRole="button"
       accessibilityLabel={label}
-      style={[styles.row, showBorder && styles.divider]}>
+      style={[styles.row, showBorder && styles.divider, showBorder && { borderBottomColor: theme.border }]}>
       <View style={styles.left}>
         <ThemedText type="default">{transaction.merchant}</ThemedText>
         <ThemedText
@@ -63,7 +65,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#00000022',
   },
   left: {
     flex: 1,
