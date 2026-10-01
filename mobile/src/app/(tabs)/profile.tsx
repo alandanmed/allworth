@@ -86,6 +86,11 @@ export default function ProfileScreen() {
           <ThemedText type="small" themeColor="textSecondary">
             A quiet reminder each day — amounts stay private until you open it.
           </ThemedText>
+          {preferencesQuery.isError ? (
+            <ThemedText type="small" themeColor="danger" style={styles.toggleError}>
+              Couldn't load this setting. Toggling will still try to save.
+            </ThemedText>
+          ) : null}
         </View>
         <Switch
           value={notificationsEnabled}
@@ -135,6 +140,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   toggleTextBlock: { flex: 1 },
+  toggleError: { marginTop: Spacing.one },
   previewButton: { marginBottom: Spacing.five },
   logoutButton: { marginTop: Spacing.two },
 });
