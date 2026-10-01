@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
     padding: Spacing.three,
   },
+  left: { flex: 1 },
   total: { marginTop: Spacing.half },
   rightRow: { flexDirection: 'row', alignItems: 'center' },
   chevron: { marginLeft: Spacing.half, fontSize: 16 },
