@@ -84,4 +84,8 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: Radius.pill,
   },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 });

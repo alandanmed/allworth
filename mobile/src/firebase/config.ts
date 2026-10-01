@@ -1,4 +1,10 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
+// getReactNativePersistence is omitted from firebase/auth's public types because
+// its package exports map lists the generic "types" condition before the
+// "react-native" one, so tsc always resolves the non-RN types regardless of the
+// project's customConditions setting. Metro resolves the real React Native build
+// correctly at runtime (confirmed: auth sessions persist across app restarts).
+// @ts-expect-error — known upstream firebase/auth types gap, not a real error
 import { getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
