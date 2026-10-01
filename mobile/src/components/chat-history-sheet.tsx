@@ -39,7 +39,7 @@ export function ChatHistorySheet({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
+      <Pressable style={styles.backdrop} onPress={onClose} accessible={false} />
       <View style={[styles.sheet, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
           <ThemedText type="subtitle">Chats</ThemedText>

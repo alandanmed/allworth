@@ -86,6 +86,7 @@ export default function TransactionDetailScreen() {
       </ThemedText>
       <AppTextInput
         placeholder="Add a note..."
+        accessibilityLabel="Notes"
         defaultValue={transaction.notes}
         multiline
         style={styles.notesInput}
