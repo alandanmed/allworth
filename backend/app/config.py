@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,7 +8,9 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = True
     database_url: str
-    test_database_url: str
+    # Only used by tests/conftest.py for the local test DB — never required
+    # in production, which has no reason to run the test suite against itself.
+    test_database_url: Optional[str] = None
     firebase_service_account_path: str
     anthropic_api_key: str
     plaid_client_id: str
