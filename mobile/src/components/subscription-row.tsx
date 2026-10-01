@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { formatCurrency } from '@/utils/net-worth';
 import { Subscription } from '@/utils/subscriptions';
 import { ThemedText } from './themed-text';
@@ -11,6 +12,7 @@ type SubscriptionRowProps = {
 };
 
 export function SubscriptionRow({ subscription, showBorder = true }: SubscriptionRowProps) {
+  const theme = useTheme();
   const isIncrease =
     subscription.priceChanged && subscription.latestAmount > (subscription.previousAmount ?? 0);
   const changeText = subscription.priceChanged
@@ -31,7 +33,7 @@ export function SubscriptionRow({ subscription, showBorder = true }: Subscriptio
 
   return (
     <View
-      style={[styles.row, showBorder && styles.divider]}
+      style={[styles.row, showBorder && styles.divider, showBorder && { borderBottomColor: theme.border }]}
       accessible
       accessibilityLabel={a11yLabel}>
       <View style={styles.left}>
@@ -57,7 +59,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#00000022',
   },
   left: { flex: 1, marginRight: Spacing.two },
 });

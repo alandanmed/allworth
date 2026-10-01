@@ -8,6 +8,7 @@ import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useAccount } from '@/hooks/use-accounts';
+import { useTheme } from '@/hooks/use-theme';
 import { useTransaction } from '@/hooks/use-transactions';
 import { formatCurrency } from '@/utils/net-worth';
 
@@ -20,8 +21,12 @@ function formatDate(isoDate: string): string {
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
+  const theme = useTheme();
   return (
-    <View style={styles.detailRow} accessible accessibilityLabel={`${label}, ${value}`}>
+    <View
+      style={[styles.detailRow, { borderBottomColor: theme.border }]}
+      accessible
+      accessibilityLabel={`${label}, ${value}`}>
       <ThemedText type="small" themeColor="textSecondary">
         {label}
       </ThemedText>
@@ -97,7 +102,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: Spacing.two,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#00000022',
   },
   notesLabel: { marginBottom: Spacing.one },
   notesInput: { minHeight: 80, textAlignVertical: 'top' },
