@@ -21,13 +21,13 @@ configure_logging()
 
 app = FastAPI(title=settings.app_name)
 
-# The only real client is the React Native mobile app, which browsers'
-# CORS restrictions don't apply to at all. The wildcard is kept for local
-# dev convenience (e.g. testing against `expo start --web`) and closed in
-# production, where there is no legitimate browser-based client.
+# Native mobile clients aren't subject to CORS. Browsers are, so the web build's
+# origin(s) must be listed explicitly via CORS_ALLOWED_ORIGINS (comma-separated).
+# Development keeps the wildcard for local convenience.
+_allowed_origins = [o.strip() for o in settings.cors_allowed_origins.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.environment == "development" else [],
+    allow_origins=["*"] if settings.environment == "development" else _allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

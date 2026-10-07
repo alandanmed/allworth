@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme, View } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
@@ -30,6 +30,16 @@ function RootLayoutNav() {
   );
 }
 
+// On desktop browsers, keep the phone-sized layout centered instead of stretched.
+function WebFrame({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') return <>{children}</>;
+  return (
+    <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#0a0f0d' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: 480, overflow: 'hidden' }}>{children}</View>
+    </View>
+  );
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -38,7 +48,9 @@ export default function RootLayout() {
       <AuthProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AnimatedSplashOverlay />
-          <RootLayoutNav />
+          <WebFrame>
+            <RootLayoutNav />
+          </WebFrame>
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
