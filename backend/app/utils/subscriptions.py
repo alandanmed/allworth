@@ -1,14 +1,17 @@
 def detect_subscriptions(transactions: list[dict]) -> list[dict]:
     """
-    Groups transactions by merchant, flags recurring ones (2+ occurrences,
-    similar amount), and reports the latest amount plus any price change
+    Groups transactions by merchant, flags recurring ones (similar amount in
+    3+ different calendar months; income/refunds, which are negative, are
+    ignored), and reports the latest amount plus any price change
     versus the prior occurrence. Mirrors the mobile app's detection logic.
     """
     AMOUNT_TOLERANCE_PERCENT = 0.10
-    MIN_OCCURRENCES = 2
+    MIN_DISTINCT_MONTHS = 3
 
     by_merchant: dict[str, list[dict]] = {}
     for t in transactions:
+        if t["amount"] <= 0:
+            continue
         by_merchant.setdefault(t["merchant"], []).append(t)
 
     def amounts_similar(a: float, b: float) -> bool:
@@ -19,15 +22,15 @@ def detect_subscriptions(transactions: list[dict]) -> list[dict]:
 
     subscriptions = []
     for merchant, txns in by_merchant.items():
-        if len(txns) < MIN_OCCURRENCES:
+        if len(txns) < MIN_DISTINCT_MONTHS:
             continue
 
-        # Confirm at least MIN_OCCURRENCES have mutually similar amounts —
-        # same rule as the mobile-side detector, not just "appeared twice."
+        # Confirm similar-amount charges span at least MIN_DISTINCT_MONTHS
+        # calendar months — same rule as the mobile-side detector.
         qualifies = False
-        for i, t in enumerate(txns):
+        for t in txns:
             matches = [o for o in txns if amounts_similar(t["amount"], o["amount"])]
-            if len(matches) >= MIN_OCCURRENCES:
+            if len({str(o["date"])[:7] for o in matches}) >= MIN_DISTINCT_MONTHS:
                 qualifies = True
                 break
         if not qualifies:
