@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -9,6 +9,32 @@ type ChatBubbleProps = {
   content: string;
 };
 
+/**
+ * The assistant replies with light markdown (**bold** and "- " bullets).
+ * React Native's <Text> doesn't render markdown, so handle just those two
+ * patterns here instead of pulling in a markdown dependency.
+ */
+function renderAssistantText(content: string) {
+  return content.split('\n').map((rawLine, lineIndex, lines) => {
+    const line = rawLine.replace(/^\s*[-*]\s+/, '\u2022 ');
+    const parts = line.split(/(\*\*[^*]+\*\*)/g).filter((part) => part.length > 0);
+    return (
+      <Text key={lineIndex}>
+        {parts.map((part, partIndex) =>
+          part.startsWith('**') && part.endsWith('**') && part.length > 4 ? (
+            <Text key={partIndex} style={styles.bold}>
+              {part.slice(2, -2)}
+            </Text>
+          ) : (
+            part
+          )
+        )}
+        {lineIndex < lines.length - 1 ? '\n' : ''}
+      </Text>
+    );
+  });
+}
+
 export function ChatBubble({ role, content }: ChatBubbleProps) {
   const theme = useTheme();
   const isUser = role === 'user';
@@ -17,7 +43,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
     <View
       style={[styles.row, isUser ? styles.rowUser : styles.rowAssistant]}
       accessible
-      accessibilityLabel={`${isUser ? 'You said' : 'Assistant said'}: ${content}`}>
+      accessibilityLabel={`${isUser ? 'You said' : 'Assistant said'}: ${content.replace(/\*\*/g, '')}`}>
       <View
         style={[
           styles.bubble,
@@ -26,7 +52,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
             : [styles.assistantBubble, { backgroundColor: theme.backgroundElement }],
         ]}>
         <ThemedText type="default" style={isUser ? styles.userText : undefined}>
-          {content}
+          {isUser ? content : renderAssistantText(content)}
         </ThemedText>
       </View>
     </View>
@@ -58,5 +84,8 @@ const styles = StyleSheet.create({
   },
   userText: {
     color: '#ffffff',
+  },
+  bold: {
+    fontWeight: '700',
   },
 });
