@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     plaid_secret: str
     plaid_env: str = "sandbox"
     token_encryption_key: str
+    # Comma-separated browser origins allowed to call the API (the web build).
+    # Empty in production means no browser client is allowed.
+    cors_allowed_origins: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
