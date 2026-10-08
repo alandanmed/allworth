@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { Platform, useColorScheme, View } from 'react-native';
 
@@ -32,7 +32,11 @@ function RootLayoutNav() {
 
 // On desktop browsers, keep the phone-sized layout centered instead of stretched.
 function WebFrame({ children }: { children: React.ReactNode }) {
-  if (Platform.OS !== 'web') return <>{children}</>;
+  const { user, isLoading } = useAuth();
+  const pathname = usePathname();
+  const showingLanding = !isLoading && !user && pathname === '/';
+  // The landing page uses the full browser width; the app itself stays phone-sized.
+  if (Platform.OS !== 'web' || showingLanding) return <>{children}</>;
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#0a0f0d' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 480, overflow: 'hidden' }}>{children}</View>
