@@ -13,6 +13,9 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import { enterApp } from '@/hooks/use-app-entry';
+import { useAuth } from '@/hooks/use-auth';
+
 /**
  * Public marketing page for signed-out web visitors ("/").
  *
@@ -257,7 +260,12 @@ export function Landing() {
   const { width } = useWindowDimensions();
   const wide = width >= 960;
   const [ready, setReady] = useState(false);
-  const launch = () => router.push('/auth');
+  const { user } = useAuth();
+  const launch = () => {
+    enterApp();
+    // Signed-in visitors go straight back into the app; others to login/sign-up.
+    if (!user) router.push('/auth');
+  };
 
   useEffect(() => {
     if (typeof document !== 'undefined' && !document.getElementById('allworth-fonts')) {

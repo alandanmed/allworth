@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { Redirect, router } from 'expo-router';
-import { useState } from 'react';
+import { Redirect } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
 import { AppButton } from '@/components/app-button';
@@ -12,6 +12,7 @@ import { ScreenContainer } from '@/components/screen-container';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { firebaseAuth } from '@/firebase/config';
+import { enterApp } from '@/hooks/use-app-entry';
 import { useAuth } from '@/hooks/use-auth';
 
 const authSchema = z.object({
@@ -53,6 +54,9 @@ export default function AuthScreen() {
     defaultValues: { email: '', password: '' },
   });
 
+  // Arriving here directly (e.g. a deep link) counts as entering the app.
+  useEffect(() => enterApp(), []);
+
   if (isLoading) return null;
   if (user) return <Redirect href="/(tabs)" />;
 
@@ -74,17 +78,6 @@ export default function AuthScreen() {
 
   return (
     <ScreenContainer scroll>
-      {Platform.OS === 'web' && (
-        <Pressable
-          onPress={() => router.replace('/')}
-          accessibilityRole="link"
-          accessibilityLabel="Back to the AllWorth site"
-          style={({ pressed }) => [styles.backLink, pressed && { opacity: 0.6 }]}>
-          <ThemedText type="small" themeColor="textSecondary">
-            {'\u2190 Back to site'}
-          </ThemedText>
-        </Pressable>
-      )}
       <View style={styles.header}>
         <ThemedText type="title">AllWorth</ThemedText>
         <ThemedText type="default" themeColor="textSecondary">
@@ -161,7 +154,6 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  backLink: { alignSelf: 'flex-start', paddingVertical: Spacing.two },
   header: { alignItems: 'center', marginTop: Spacing.six, marginBottom: Spacing.six },
   firebaseError: { marginBottom: Spacing.three },
   submitButton: { marginTop: Spacing.two },
