@@ -6,8 +6,15 @@ bank-account linking, and an AI assistant (Claude) that answers questions
 about the signed-in user's own financial data using a restricted set of
 read-only tools — no unrestricted database access.
 
+**Live app:** https://allworth-mobile.vercel.app — the same Expo codebase,
+exported for web and deployed on Vercel.
 **Live API:** https://allworth-api.onrender.com (free tier — the first
 request after a period of inactivity can take 30-50s while it spins up)
+
+[![AllWorth demo — click to watch](docs/demo-poster.jpg)](https://allworth-mobile.vercel.app/#tour)
+
+*40-second walkthrough: net worth, accounts, activity, budgets, subscriptions
+and the AI assistant.*
 
 ## Screenshots
 
@@ -62,6 +69,20 @@ Captured against the live deployed backend with seeded demo data.
 - Deployed on Render (web service + managed PostgreSQL) from a single
   `render.yaml` Blueprint, with Alembic migrations running automatically on
   every deploy
+
+## How it's built
+
+One TypeScript codebase targets iOS, Android and web. Expo Router handles
+navigation on all three; web-only pieces (the marketing landing page, the
+Firebase web config, tab bar) live in `*.web.tsx` / `*.web.ts` files that
+Metro picks automatically. The web build is a static export
+(`expo export --platform web`) served by Vercel, and talks to the same
+FastAPI backend as the mobile app. Production CORS is restricted to the
+deployed origin through the `CORS_ALLOWED_ORIGINS` environment variable.
+
+Request flow: the client signs in with Firebase, attaches the ID token to
+every API call, and the backend verifies it with the Firebase Admin SDK and
+scopes every query to that user.
 
 ## Architecture notes
 
