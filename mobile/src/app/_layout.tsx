@@ -38,7 +38,7 @@ function WebFrame({ children }: { children: React.ReactNode }) {
   // The landing page uses the full browser width; the app itself stays phone-sized.
   if (Platform.OS !== 'web' || showingLanding) return <>{children}</>;
   return (
-    <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#0a0f0d' }}>
+    <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#1D211B' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 480, overflow: 'hidden' }}>{children}</View>
     </View>
   );
